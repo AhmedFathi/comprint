@@ -57,30 +57,27 @@ if __name__ == '__main__':
     
     # Create image pairs
     ds_train2 = ds_train.shuffle(train_size, reshuffle_each_iteration=True)
-    ds_val2 = ds_val.shuffle(val_size, reshuffle_each_iteration=False)
+    ds_val2   = ds_val.shuffle(val_size, reshuffle_each_iteration=False)
     
     ds_train = tf.data.Dataset.zip((ds_train, ds_train2))
-    ds_val = tf.data.Dataset.zip((ds_val, ds_val2))
+    ds_val   = tf.data.Dataset.zip((ds_val, ds_val2))
     
     # Repeat dataset
     ds_train = ds_train.repeat()
-    ds_val = ds_val.repeat()
+    ds_val   = ds_val.repeat()
     
     # Process
-    jpg_quality_list = tf.convert_to_tensor(["20", "25", "30", "35", "40", "50", "55", "60", "65", "70", "80", "90", "100", "ps4", "ps5", "ps6", "ps7", "ps8", "ps9", "ps10", "ps11", "ps12"], dtype=tf.string)
+    # prefix ps: Photoshop level
+    jpg_quality_list = tf.convert_to_tensor(["20", "25", "30", "35", "40", "50", "55", "60", "65", "70", "80", "90", "100", "ps4", "ps5", "ps6", "ps7", "ps8", "ps9", "ps10", "ps11", "ps12"], dtype=tf.string) 
     lambda_process_image = lambda f1, f2: dataloader.process_image_siamese_from_filenames(f1, f2, quality_list=jpg_quality_list)
     
     ds_train = ds_train.map(lambda_process_image, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     ds_val = ds_val.map(lambda_process_image, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     
     ds_train = dataloader.configure_for_performance(ds_train, batch_size=BATCH, buffer_size=tf.data.experimental.AUTOTUNE)
-    ds_val = dataloader.configure_for_performance(ds_val, batch_size=BATCH, buffer_size=tf.data.experimental.AUTOTUNE)
+    ds_val = dataloader.configure_for_performance(ds_val, batch_size=BATCH, buffer_size=tf.data.experimental.AUTOTUNE)   
     
-    # Expand dimensions of target labels
-    ds_train = ds_train.map(lambda x, y: (x, tf.expand_dims(y, axis=-1)))
-    ds_val = ds_val.map(lambda x, y: (x, tf.expand_dims(y, axis=-1)))
-    
-    # Ignore IO errors
+    # Ignore IO errors 
     ds_train = ds_train.apply(tf.data.experimental.ignore_errors())
     ds_val = ds_val.apply(tf.data.experimental.ignore_errors())
 
