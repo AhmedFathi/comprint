@@ -5,6 +5,8 @@ from tensorflow import keras as ks
 from tensorflow.keras import layers
 import time 
 from tensorflow.python.keras.engine.training import reduce_per_replica 
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.layers import Input, Flatten, Dense
 
 def Create_Network(channels=1, depth=20, filters=64):
     model = ks.Sequential()
@@ -283,3 +285,88 @@ class Siamese_ResNet(tf.keras.models.Model):
         branch.add(layers.Conv2D(filters=channels, kernel_size=3, padding='same'))
         
         return branch
+
+class ResNet_Network(tf.keras.models.Model):
+    def __init__(self, channels=1, filters=64):
+        super(Siamese_Network, self).__init__()
+        
+        # Define the ResNet50 model
+        self.resnet = ResNet50(include_top=False, weights=None, input_shape=(None, None, channels))
+        
+        # Add a Flatten layer to convert the output of ResNet to a 1D vector
+        self.flatten = Flatten()
+        
+        # Add a Dense layer to reduce the dimensionality of the output vector
+        self.dense = Dense(128, activation='relu')
+        
+    def call(self, inputs):
+        # Pass the inputs through the ResNet50 model
+        x = self.resnet(inputs)
+        
+        # Flatten the output of ResNet
+        x = self.flatten(x)
+        
+        # Apply the Dense layer to reduce the dimensionality of the output vector
+        x = self.dense(x)
+        
+        return x
+
+    def train_step(self, data):
+        # Unpack the data
+        img1, img2, label = data
+        
+        with tf.GradientTape() as tape:
+            # Forward pass through the Siamese network
+            y_pred1 = self(img1, training=True)
+            y_pred2 = self(img2, training=True)
+            
+            # Calculate distances
+            diff = tf.square(tf.math.reduce_euclidean_norm(tf.math.subtract(y_pred1, y_pred2), axis=[1,2]))
+            
+            # Softmax
+            exp = tf.math.exp(tf.math.negative(diff))
+            norm = tf.math.reduce_sum(exp, axis=0)
+            p = tf.divide(exp, norm + 1e-6)
+            
+            # Compute the loss value
+            # (the loss function is configured in compile())
+            loss = self.compiled_loss(label, p, regularization_losses=self.losses)
+        
+        # Compute gradients
+        trainable_vars = self.trainable_variables
+        gradients = tape.gradient(loss, trainable_vars)
+        
+        # Update weights
+        self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+        
+        # Update metrics (includes the metric that tracks the loss)
+        self.compiled_metrics.update_state(label, p)
+        
+        # Return a dict mapping metric names to current value
+        return {m.name: m.result() for m in self.metrics}
+    
+    def test_step(self, data):
+        # Unpack the data
+        img1, img2, label = data
+        
+        # Compute predictions
+        y_pred1 = self(img1, training=False)
+        y_pred2 = self(img2, training=False)
+        
+        # Calculate distances
+        diff = tf.square(tf.math.reduce_euclidean_norm(tf.math.subtract(y_pred1, y_pred2), axis=[1,2]))
+        
+        # Softmax
+        exp = tf.math.exp(tf.math.negative(diff))
+        norm = tf.math.reduce_sum(exp, axis=0)
+        p = tf.divide(exp, norm + 1e-6)
+        
+        # Updates the metrics tracking the loss
+        self.compiled_loss(label, p, regularization_losses=self.losses)
+        
+        # Update the metrics
+        self.compiled_metrics.update_state(label, p)
+        
+        # Return a dict mapping metric names to current value
+        # Note that it will include the loss (tracked in self.metrics)
+        return {m.name: m.result() for m in self.metrics}
