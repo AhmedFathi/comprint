@@ -30,8 +30,8 @@ file_path_validation = '????_small.png' # 4 digits
 train_size = 100
 #val_size = 100
 val_size = 10
-#BATCH = 200
-BATCH = 20
+BATCH = 200
+#BATCH = 20
 
 model_name_init = "Comprint_Siamese_Full_jpg_ps_full"
 model_name = "Comprint_Siamese_ResNet_Full_jpg_ps_full"
