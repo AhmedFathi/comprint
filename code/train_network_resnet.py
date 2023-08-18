@@ -86,11 +86,11 @@ if __name__ == '__main__':
     model = network.Siamese_ResNet()
     model.build((BATCH, 48, 48, 1))
     
-    # Specificy training configuration
+    # Compile model
     print('\nCompiling model\n')
-    loss = BinaryCrossentropy()
+    loss = tf.keras.losses.BinaryCrossentropy()
     model.compile(optimizer='adam', loss=loss)
-    
+
     # Define the Keras TensorBoard callback
     print('\nDefining Callbacks\n')
     logdir = "%s/data/tensorboard/%s-%s" % (log_folder, model_name, datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     )
     
     # Fit model 
-    print("\nFitting model on training data \n")
+    print("\nFitting model on training data\n")
     model.fit(
         ds_train, 
         validation_data=ds_val,
