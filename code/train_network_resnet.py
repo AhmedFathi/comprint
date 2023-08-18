@@ -82,7 +82,7 @@ if __name__ == '__main__':
     ds_val = ds_val.apply(tf.data.experimental.ignore_errors())
 
     # Create Network
-    print('\nCreating network\n')
+    print('\nCreating ResNet network\n')
     model = network.ResNet_Network()
     model.build((BATCH, 48, 48, 1))
     
