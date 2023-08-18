@@ -86,42 +86,4 @@ if __name__ == '__main__':
     model = network.Siamese_ResNet()
     model.build((BATCH, 48, 48, 1))
     
-    # Compile model
-    print('\nCompiling model\n')
-    loss = tf.keras.losses.BinaryCrossentropy()
-    model.compile(optimizer='adam', loss=loss)
-
-    # Define the Keras TensorBoard callback
-    print('\nDefining Callbacks\n')
-    logdir = "%s/data/tensorboard/%s-%s" % (log_folder, model_name, datetime.now().strftime("%Y%m%d-%H%M%S"))
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=logdir,
-        write_graph=True,
-        update_freq='epoch'
-    )
     
-    # Define checkpoint callback
-    checkpoint_filepath = '%s/data/checkpoint/%s/cp-{epoch:04d}' % (log_folder, model_name)
-    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=checkpoint_filepath,
-        save_weights_only=False,
-        monitor='val_loss',
-        mode='min',
-        save_best_only=True
-    )
-    
-    # Fit model 
-    print("\nFitting model on training data\n")
-    model.fit(
-        ds_train, 
-        validation_data=ds_val,
-        epochs=EPOCHS, 
-        callbacks=[tensorboard_callback, model_checkpoint_callback],
-        verbose=2,
-        use_multiprocessing=True,
-        steps_per_epoch=6000,
-        validation_steps=500
-    )
-    
-    # Save model
-    model.save('%s/models/%s' % (log_folder, model_name))
