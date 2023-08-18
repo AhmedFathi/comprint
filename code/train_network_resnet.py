@@ -14,8 +14,8 @@ import network
 import dataloader
 
 # param
-EPOCHS = 50
-#POCHS = 5
+#EPOCHS = 50
+POCHS = 5
 
 # Fixed structure for Train and Validation data
 folder_train = 'data/train'
@@ -25,14 +25,14 @@ folder_validation = 'data/validation'
 file_path_train = '????_small.png' # 4 digits
 file_path_validation = '????_small.png' # 4 digits
 
-train_size = 1000
-#train_size = 100
-val_size = 100
-#val_size = 10
-BATCH = 200
-#BATCH = 20
+#train_size = 1000
+train_size = 100
+#val_size = 100
+val_size = 10
+#BATCH = 200
+BATCH = 20
 
-model_name_init = "Comprint_Full"
+model_name_init = "Comprint_Siamese_Full_jpg_ps_full"
 model_name = "Comprint_Siamese_ResNet_Full_jpg_ps_full"
 
 if __name__ == '__main__': 
@@ -90,9 +90,9 @@ if __name__ == '__main__':
     print(model_filepath)
     
     # Load model
-    # model_old = ks.models.load_model(model_filepath)
-    # weights = model_old.get_weights()
-    # model.set_weights(weights)
+    model_old = ks.models.load_model(model_filepath)
+    weights = model_old.get_weights()
+    model.set_weights(weights)
     
     # Specificy training configuration
     print('\nCompiling model\n')
