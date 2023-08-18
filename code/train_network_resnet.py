@@ -15,7 +15,7 @@ import dataloader
 
 # param
 #EPOCHS = 50
-POCHS = 5
+EPOCHS = 5
 
 # Fixed structure for Train and Validation data
 folder_train = 'data/train'
