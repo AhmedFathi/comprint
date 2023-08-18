@@ -79,30 +79,18 @@ if __name__ == '__main__':
     # Ignore IO errors 
     ds_train = ds_train.apply(tf.data.experimental.ignore_errors())
     ds_val = ds_val.apply(tf.data.experimental.ignore_errors())
-    
-    # # Create CNN
+
+    # Create Network
     print('\nCreating network\n')
     model = network.Siamese_ResNet()
     model.build((BATCH, 48, 48, 1))
     
-    # Load previous model from checkpoint
-    model_filepath = '%s/models/%s' % (main_folder, model_name_init)
-    print(model_filepath)
-    
-    # Load model
-    # model_old = ks.models.load_model(model_filepath)
-    # weights = model_old.get_weights()
-    # model.set_weights(weights)
-    
     # Specificy training configuration
     print('\nCompiling model\n')
-    loss = tf.keras.losses.BinaryCrossentropy()
-    model.compile(
-        optimizer='adam',
-        loss=loss
-    )
-
-    # Define the Keras TensorBoard callback.
+    loss = BinaryCrossentropy()
+    model.compile(optimizer='adam', loss=loss)
+    
+    # Define the Keras TensorBoard callback
     print('\nDefining Callbacks\n')
     logdir = "%s/data/tensorboard/%s-%s" % (log_folder, model_name, datetime.now().strftime("%Y%m%d-%H%M%S"))
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
@@ -110,7 +98,7 @@ if __name__ == '__main__':
         write_graph=True,
         update_freq='epoch'
     )
-
+    
     # Define checkpoint callback
     checkpoint_filepath = '%s/data/checkpoint/%s/cp-{epoch:04d}' % (log_folder, model_name)
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -120,7 +108,7 @@ if __name__ == '__main__':
         mode='min',
         save_best_only=True
     )
-
+    
     # Fit model 
     print("\nFitting model on training data \n")
     model.fit(
@@ -128,10 +116,10 @@ if __name__ == '__main__':
         validation_data=ds_val,
         epochs=EPOCHS, 
         callbacks=[tensorboard_callback, model_checkpoint_callback],
-        verbose = 2,
-        use_multiprocessing = True,
-        steps_per_epoch = 6000,
-        validation_steps = 500
+        verbose=2,
+        use_multiprocessing=True,
+        steps_per_epoch=6000,
+        validation_steps=500
     )
     
     # Save model
