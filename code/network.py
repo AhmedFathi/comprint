@@ -288,6 +288,7 @@ class Siamese_ResNet(tf.keras.models.Model):
 
 class ResNet_Network(tf.keras.models.Model):
     def __init__(self, channels=1, filters=64):
+        super(ResNet_Network, self).__init__()
         
         # Define the ResNet50 model
         self.resnet = ResNet50(include_top=False, weights=None, input_shape=(None, None, channels))
