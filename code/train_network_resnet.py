@@ -90,9 +90,9 @@ if __name__ == '__main__':
     print(model_filepath)
     
     # Load model
-    model_old = ks.models.load_model(model_filepath)
-    weights = model_old.get_weights()
-    model.set_weights(weights)
+    # model_old = ks.models.load_model(model_filepath)
+    # weights = model_old.get_weights()
+    # model.set_weights(weights)
     
     # Specificy training configuration
     print('\nCompiling model\n')
