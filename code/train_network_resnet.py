@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     # Create Network
     print('\nCreating network\n')
-    model = network.Siamese_ResNet()
+    model = network.Siamese_Network()
     model.build((BATCH, 48, 48, 1))
     
     # Compile model
