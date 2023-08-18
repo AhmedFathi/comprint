@@ -87,7 +87,8 @@ if __name__ == '__main__':
     
     # Load previous model from checkpoint
     model_filepath = '%s/models/%s' % (main_folder, model_name_init)
-
+    print(model_filepath)
+    
     # Load model
     model_old = ks.models.load_model(model_filepath)
     weights = model_old.get_weights()
