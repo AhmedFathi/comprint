@@ -116,7 +116,7 @@ if __name__ == '__main__':
         ds_train, 
         validation_data=ds_val,
         epochs=EPOCHS, 
-        #callbacks=[tensorboard_callback, model_checkpoint_callback],
+        callbacks=[tensorboard_callback, model_checkpoint_callback],
         verbose=2,
         use_multiprocessing=True,
         steps_per_epoch=6000,
