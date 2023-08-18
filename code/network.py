@@ -236,3 +236,50 @@ class Siamese_Network(tf.keras.models.Model):
         # Note that it will include the loss (tracked in self.metrics).
         return {m.name: m.result() for m in self.metrics}
         
+class Siamese_ResNet(tf.keras.models.Model):
+    def __init__(self, channels=1, filters=64):
+        super(Siamese_ResNet, self).__init__()
+        
+        # Shared layers
+        self.conv1 = layers.Conv2D(filters=filters, kernel_size=3, padding='same')
+        self.relu1 = layers.ReLU()
+        self.batch1 = layers.BatchNormalization(momentum=0.9, epsilon=1e-05)
+        
+        self.res_blocks = []
+        for i in range(1, 20):
+            res_block = self._create_res_block(filters)
+            self.res_blocks.append(res_block)
+        
+        # Siamese branches
+        self.branch1 = self._create_branch(channels)
+        self.branch2 = self._create_branch(channels)
+        
+    def call(self, inputs):
+        x = self.conv1(inputs)
+        x = self.relu1(x)
+        x = self.batch1(x)
+        
+        for res_block in self.res_blocks:
+            x = res_block(x)
+        
+        out1 = self.branch1(x)
+        out2 = self.branch2(x)
+        
+        return out1, out2
+    
+    def _create_res_block(self, filters):
+        res_block = tf.keras.Sequential()
+        res_block.add(layers.Conv2D(filters=filters, kernel_size=3, padding='same'))
+        res_block.add(layers.BatchNormalization(momentum=0.9, epsilon=1e-05))
+        res_block.add(layers.ReLU())
+        res_block.add(layers.Conv2D(filters=filters, kernel_size=3, padding='same'))
+        res_block.add(layers.BatchNormalization(momentum=0.9, epsilon=1e-05))
+        res_block.add(layers.ReLU())
+        
+        return res_block
+    
+    def _create_branch(self, channels):
+        branch = tf.keras.Sequential()
+        branch.add(layers.Conv2D(filters=channels, kernel_size=3, padding='same'))
+        
+        return branch
