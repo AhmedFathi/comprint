@@ -9,6 +9,7 @@ from datetime import datetime
 import tensorflow as tf
 from tensorflow.data import Dataset
 from tensorflow import keras as ks
+from tensorflow.keras.losses import BinaryCrossentropy
 
 import network
 import dataloader
