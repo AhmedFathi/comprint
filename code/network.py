@@ -321,12 +321,12 @@ class ResNet_Network(tf.keras.models.Model):
             y_pred2 = self(img2, training=True)
             
             # Calculate distances
-            diff = tf.square(tf.math.reduce_euclidean_norm(tf.math.subtract(y_pred1, y_pred2), axis=[1,2]))
+            diff = tf.square(tf.norm(y_pred1 - y_pred2, axis=1))
             
             # Softmax
-            exp = tf.math.exp(tf.math.negative(diff))
-            norm = tf.math.reduce_sum(exp, axis=0)
-            p = tf.divide(exp, norm + 1e-6)
+            exp = tf.exp(-diff)
+            norm = tf.reduce_sum(exp, axis=0)
+            p = exp / (norm + 1e-6)
             
             # Compute the loss value
             # (the loss function is configured in compile())
@@ -354,12 +354,12 @@ class ResNet_Network(tf.keras.models.Model):
         y_pred2 = self(img2, training=False)
         
         # Calculate distances
-        diff = tf.square(tf.math.reduce_euclidean_norm(tf.math.subtract(y_pred1, y_pred2), axis=[1,2]))
+        diff = tf.square(tf.norm(y_pred1 - y_pred2, axis=1))
         
         # Softmax
-        exp = tf.math.exp(tf.math.negative(diff))
-        norm = tf.math.reduce_sum(exp, axis=0)
-        p = tf.divide(exp, norm + 1e-6)
+        exp = tf.exp(-diff)
+        norm = tf.reduce_sum(exp, axis=0)
+        p = exp / (norm + 1e-6)
         
         # Updates the metrics tracking the loss
         self.compiled_loss(label, p, regularization_losses=self.losses)
@@ -368,5 +368,4 @@ class ResNet_Network(tf.keras.models.Model):
         self.compiled_metrics.update_state(label, p)
         
         # Return a dict mapping metric names to current value
-        # Note that it will include the loss (tracked in self.metrics)
         return {m.name: m.result() for m in self.metrics}
